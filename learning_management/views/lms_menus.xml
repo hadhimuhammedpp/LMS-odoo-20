@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="lms_main_menu" name="ABC Learning Academy"/>
+    <menuitem id="lms_enrollment_menu" name="Enrollments" parent="lms_main_menu" action="enrollment_menu"/>
+    <menuitem id="lms_scholarship_menu" name="Scholarships" parent="lms_main_menu" action="scholarship_menu"/>
+</odoo>
