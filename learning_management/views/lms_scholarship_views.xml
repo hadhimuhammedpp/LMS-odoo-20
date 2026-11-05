@@ -29,18 +29,25 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name='sellbuttonaction' type="object" invisible="status == 'Sold'" string="sell"/>
-
-                    <field name="state" widget="statusbar" options="{'clickable':'1'}"/>
+                    <button name='approve_button' type="object" class="oe_highlight" invisible="state in ['fully approved','rejected']" string="Approve"/>
+                    <button name="reject_button" type="object" invisible="state=='rejected'" string="Reject"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,confirmed,first approved, fully approved"/>
                 </header>
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="enrollment_id"/>
-
-                        <field name="student_id"/>
-                        <field name="validity"/>
-                        <field name="discount_amount"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="enrollment_id" options="{'no_create':True}"/>
+                            <field name="student_id"/>
+                            <field name="course_id"/>
+                        </group>
+                        <group>
+                            <field name="validity"/>
+                            <field name="due_date"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="discount_amount"/>
+                            <field name="company_id"/>
+                        </group>
                     </group>
                 </sheet>
                 <chatter/>

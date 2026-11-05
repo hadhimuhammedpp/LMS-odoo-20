@@ -11,6 +11,8 @@
     'category': 'Education',
     'data': [
         'security/ir.access.csv',
+        'data/sequence.xml',
+        'data/product_data.xml',
         'views/lms_scholarship_views.xml',
         'views/lms_enrollment_views.xml',
         'views/lms_menus.xml'
