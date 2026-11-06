@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="batch_menu" model="ir.actions.act_window">
+        <field name="name">batch list</field>
+        <field name="res_model">lms.batch</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="batch_list_view" model="ir.ui.view">
+        <field name="name">list_view</field>
+        <field name="model">lms.batch</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="batch_id"/>
+                <field name="batch_name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="batch_form_view" model="ir.ui.view">
+        <field name="name">form_view</field>
+        <field name="model">lms.batch</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="start_button" type="object" class="oe_highlight" string="Start"
+                            invisible="state=='cancelled'"/>
+                    <button name="complete_button" type="object" string="Complete" invisible="state=='cancelled'"/>
+                    <button name="cancel_button" type="object" string="Cancel" invisible="state=='cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,ongoing,completed"/>
+                </header>
+                <sheet>
+                    <div name="button_box" groups="base.group_user" position="inside">
+                        <button name='%(students_enrolled)d' type="action" class="oe_stat_button">
+                            <field name='student_count' widget='statinfo'/>
+                        </button>
+                    </div>
+
+                    <group>
+                        <field name="batch_id"/>
+                        <field name="batch_name"/>
+                        <field name="capacity"/>
+                        <field name="company_id"/>
+                        <field name="start_date"/>
+                        <field name="course_id"/>
+                        <field name="enrollment_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>

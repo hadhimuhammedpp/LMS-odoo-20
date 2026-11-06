@@ -8,7 +8,7 @@ class LmsScholarship(models.Model):
     _description='Scholarship'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name=fields.Char(string="scholarship Name")
+    name=fields.Char(string="scholarship Name", tracking=True)
     enrollment_id=fields.Many2one('lms.enrollment',string="Enrollment id", required=True)
     course_id=fields.Many2one('product.product',string="Course id", related='enrollment_id.course_id')
     state=fields.Selection([('pending','Pending'), ('confirmed','Confirmed'), ('first approved','First Approved'),('fully approved','Fully Approved'), ('rejected','Rejected')],default="pending")

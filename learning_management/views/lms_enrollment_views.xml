@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <record id="enrollment_menu" model="ir.actions.act_window">
         <field name="name">enrollments list</field>
         <field name="res_model">lms.enrollment</field>
         <field name="view_mode">list,form,kanban</field>
     </record>
+
 
     <!--               list view-->
     <record id="enrollments_list_view" model="ir.ui.view">
@@ -16,7 +16,7 @@
                 <field name="date"/>
                 <field name="name"/>
                 <field name="course_id"/>
-                <field name="course_fee"/>
+                <field name="batch"/>
                 <field name="state"/>
                 <field name="student_id"/>
             </list>
@@ -30,7 +30,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="confirm_button" type="object" string="Confirm" class="btn-primary" invisible="state in ['confirm','cancel']"/>
+                    <button name="confirm_button" type="object" string="Confirm" class="btn-primary"
+                            invisible="state in ['confirm','cancel']"/>
                     <button name="cancel_button" type="object" string="Cancel" invisible="state=='cancel'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"/>
                 </header>
@@ -38,11 +39,12 @@
                     <h1>
                         <field name="name"/>
                     </h1>
+                    <field name="image" widget="contact_image" class="oe_avatar"/>
                     <group>
                         <group>
                             <field name="reference_id"/>
-                            <field name="student_id"/>
-                            <field name="course_id"/>
+                            <field name="student_id" placeholder="Enter a Student"/>
+                            <field name="course_id" placeholder="Select the Course"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="course_fee"/>
                             <field name="dob"/>
@@ -53,7 +55,7 @@
                             <field name="due_date"/>
                             <field name="is_lead"/>
                             <field name="company_id"/>
-
+                            <field name="batch" placeholder="choose the batch"/>
                         </group>
                     </group>
                     <notebook>
@@ -67,6 +69,22 @@
                 </sheet>
                 <chatter/>
             </form>
+        </field>
+    </record>
+
+    <!--    search view-->
+    <record id="enrollment_search_view" model="ir.ui.view">
+        <field name="name">search view</field>
+        <field name="model">lms.enrollment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="student_id"/>
+                <field name="course_id"/>
+                <filter name="for customer 1" domain="[('student_id','=','customer 1')]"/>
+                <filter name="for mern stack" domain="[('course_id','=','mern stack')]"/>
+                <filter name="group_by" context="{'group_by':'batch','residual_visible':'True'}"/>
+                <filter name="group_by" context="{'group_by':'course_id','residual_visible':'True'}"/>
+            </search>
         </field>
     </record>
 </odoo>

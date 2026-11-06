@@ -1,3 +1,5 @@
 id,name,model_id,group_id/id,operation,domain
 access_lms_enrollment,enrollment,lms.enrollment,base.group_user,crud,
 access_lms_scholarship,scholarship,lms.scholarship,base.group_user,crud,
+access_lms_batch,batch,lms.batch,base.group_user,crud,
+access_tttt,students,res.partner,base.group_user,crud,

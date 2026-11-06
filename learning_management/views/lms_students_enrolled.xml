@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="students_enrolled" model="ir.actions.act_window">
+        <field name="name">students list</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('batch','=', active_id)]</field>
+    </record>
+</odoo>

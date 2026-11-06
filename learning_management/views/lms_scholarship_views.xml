@@ -22,7 +22,6 @@
         </field>
     </record>
 
-
     <record id="scholarship_form_view" model="ir.ui.view">
         <field name="name">form_view</field>
         <field name="model">lms.scholarship</field>

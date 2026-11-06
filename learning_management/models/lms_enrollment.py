@@ -11,7 +11,7 @@ class LmsEnrollment(models.Model):
     _rec_name = 'name'
 
     course_id = fields.Many2one('product.product',string='Course id', domain=[('type','=','service')], required=True)
-    name=fields.Char(string='Enrollment id', default='New')
+    name=fields.Char(string='Enrollment name', default='New')
     reference_id=fields.Char(string='Reference id', required=True)
     student_id=fields.Many2one('res.partner', string='Student ID', context={'show_address':1}, required=True)
     date=fields.Date(string='Date', default=fields.Date.today(), required=True)
@@ -25,7 +25,10 @@ class LmsEnrollment(models.Model):
     currency_id=fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
     dob=fields.Date(string='Date of Birth', default=fields.Date.today())
     age=fields.Integer(string='Age', default=0, compute='compute_age')
+    batch=fields.Many2one('lms.batch', string='Batch')
+    image=fields.Image(string='Image')
 
+    # sequence generation
     @api.model_create_multi
     def create(self, vals_list):
         for val in vals_list:
@@ -46,6 +49,8 @@ class LmsEnrollment(models.Model):
         for record in self:
             if record.dob:
                 record.age=fields.Date.today().year-record.dob.year
+                if fields.Date.today().month < record.dob.month:
+                    record.age=record.age-1
 
     def confirm_button(self):
         for record in self:
