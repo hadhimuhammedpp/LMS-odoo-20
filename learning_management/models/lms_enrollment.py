@@ -11,8 +11,8 @@ class LmsEnrollment(models.Model):
     _rec_name = 'name'
 
     course_id = fields.Many2one('product.product',string='Course id', domain=[('type','=','service')], required=True)
-    name=fields.Char(string='Enrollment name', default='New')
-    reference_id=fields.Char(string='Reference id', required=True)
+    name=fields.Char(string='Enrollment name', default=lambda self:('New'))
+    reference_id=fields.Char(string='Reference id')
     student_id=fields.Many2one('res.partner', string='Student ID', context={'show_address':1}, required=True)
     date=fields.Date(string='Date', default=fields.Date.today(), required=True)
     due_date=fields.Date(string='Due date', default=fields.Date.today()+ timedelta(days=15))
@@ -25,17 +25,19 @@ class LmsEnrollment(models.Model):
     currency_id=fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
     dob=fields.Date(string='Date of Birth', default=fields.Date.today())
     age=fields.Integer(string='Age', default=0, compute='compute_age')
-    batch=fields.Many2one('lms.batch', string='Batch')
+    batch_id=fields.Many2one('lms.batch', string='Batch')
     image=fields.Image(string='Image')
+    scholarship_ids=fields.One2many('lms.scholarship','enrollment_id', string='Scholarship ID')
 
     # sequence generation
     @api.model_create_multi
-    def create(self, vals_list):
-        for val in vals_list:
+    def create(self, vals):
+        for val in vals:
             if val.get('name','New')=="New":
                 val['name']=self.env['ir.sequence'].next_by_code('lms.enrollment')
-        return super(LmsEnrollment,self).create(vals_list)
+        return super(LmsEnrollment,self).create(vals)
 
+# constrains
     @api.constrains('reference_id')
     def check_reference_id(self):
         pattern = '^(?=(?:.*[a-zA-Z]){3})(?=(?:.*\d){3})(?=(?:.*[^a-zA-Z0-9]){2})'
@@ -43,14 +45,26 @@ class LmsEnrollment(models.Model):
             if record.reference_id:
                if not re.match(pattern,record.reference_id):
                    raise UserError('the reference id should contains 3 alphabets, 3 numbers and 2 special characters.')
+    @api.constrains('course_fee')
+    def course_fee_validation(self):
+        for record in self:
+                if record.course_fee==0:
+                    raise UserError('The course fees cannot be zero')
+    @api.constrains('dob')
+    def dob_validation(self):
+        for record in self:
+            if record.dob>fields.Date.today():
+                raise UserError('The DOB cannot be in the future')
 
-    @api.depends('dob')
+    @api.depends('dob', 'age')
     def compute_age(self):
         for record in self:
             if record.dob:
                 record.age=fields.Date.today().year-record.dob.year
                 if fields.Date.today().month < record.dob.month:
                     record.age=record.age-1
+                if record.age < 18:
+                    raise UserError('The age should be greater than 18')
 
     def confirm_button(self):
         for record in self:

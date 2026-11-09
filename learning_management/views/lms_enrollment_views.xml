@@ -6,7 +6,6 @@
         <field name="view_mode">list,form,kanban</field>
     </record>
 
-
     <!--               list view-->
     <record id="enrollments_list_view" model="ir.ui.view">
         <field name="name">list_view</field>
@@ -16,7 +15,7 @@
                 <field name="date"/>
                 <field name="name"/>
                 <field name="course_id"/>
-                <field name="batch"/>
+                <field name="batch_id"/>
                 <field name="state"/>
                 <field name="student_id"/>
             </list>
@@ -55,12 +54,17 @@
                             <field name="due_date"/>
                             <field name="is_lead"/>
                             <field name="company_id"/>
-                            <field name="batch" placeholder="choose the batch"/>
+                            <field name="batch_id" placeholder="choose the batch"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Description">
                             <field name="description"/>
+                        </page>
+                        <page string="Scholarships">
+                            <group>
+                                <field name="scholarship_ids"/>
+                            </group>
                         </page>
                         <page string="Terms and conditions">
                             <field name="terms_and_conditions"/>
@@ -82,9 +86,27 @@
                 <field name="course_id"/>
                 <filter name="for customer 1" domain="[('student_id','=','customer 1')]"/>
                 <filter name="for mern stack" domain="[('course_id','=','mern stack')]"/>
-                <filter name="group_by" context="{'group_by':'batch','residual_visible':'True'}"/>
+                <filter name="group_by" context="{'group_by':'batch_id','residual_visible':'True'}"/>
                 <filter name="group_by" context="{'group_by':'course_id','residual_visible':'True'}"/>
             </search>
         </field>
     </record>
 </odoo>
+
+<!--    students enrolled smart button view. note: type-action, %()d-->
+<!--    <record id="students_enrolled_list_view" model="ir.ui.view">-->
+<!--        <field name="name">list_view_demo</field>-->
+<!--        <field name="model">lms.enrollment</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list>-->
+<!--                <field name="student_id"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--    <record id="students_enrolled" model="ir.actions.act_window">-->
+<!--        <field name="name">students list</field>-->
+<!--        <field name="res_model">lms.enrollment</field>-->
+<!--        <field name="view_mode">list</field>-->
+<!--        <field name="view_id" ref="students_enrolled_list_view"/>-->
+<!--        <field name="domain">[('batch_id','=',active_id)]</field>-->
+<!--    </record>-->

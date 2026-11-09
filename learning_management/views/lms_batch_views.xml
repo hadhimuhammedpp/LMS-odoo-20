@@ -11,7 +11,6 @@
         <field name="model">lms.batch</field>
         <field name="arch" type="xml">
             <list>
-                <field name="batch_id"/>
                 <field name="batch_name"/>
             </list>
         </field>
@@ -31,13 +30,11 @@
                 </header>
                 <sheet>
                     <div name="button_box" groups="base.group_user" position="inside">
-                        <button name='%(students_enrolled)d' type="action" class="oe_stat_button">
+                        <button name='students_enrolled' type="object" class="oe_stat_button" icon="person">
                             <field name='student_count' widget='statinfo'/>
                         </button>
                     </div>
-
                     <group>
-                        <field name="batch_id"/>
                         <field name="batch_name"/>
                         <field name="capacity"/>
                         <field name="company_id"/>
@@ -48,6 +45,20 @@
                 </sheet>
                 <chatter/>
             </form>
+        </field>
+    </record>
+
+            <!--    search view-->
+    <record id="batch_search_view" model="ir.ui.view">
+        <field name="name">search view</field>
+        <field name="model">lms.batch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="batch_name"/>
+                <field name="enrollment_ids"/>
+                <filter name="for python course" domain="[('course_id','=','python full stack')]"/>
+                <filter name="group_by" context="{'group_by':'state','residual_visible':'True'}"/>
+            </search>
         </field>
     </record>
 </odoo>
