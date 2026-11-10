@@ -41,8 +41,8 @@
                     <field name="image" widget="contact_image" class="oe_avatar"/>
                     <group>
                         <group>
-                            <field name="reference_id"/>
-                            <field name="student_id" placeholder="Enter a Student"/>
+                            <field name="refference_id" context="{'flag':True}"/>
+                            <field name="student_id" placeholder="Enter a Student" />
                             <field name="course_id" placeholder="Select the Course"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="course_fee"/>

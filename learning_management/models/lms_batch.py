@@ -2,13 +2,11 @@
 from odoo import api,fields,models
 from odoo.http import request
 
-
 class LmsBatch(models.Model):
     _name = 'lms.batch'
     _description = 'Batch'
     _rec_name = 'batch_name'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-
 
     batch_name = fields.Char(string='Batch Name', required=True)
     enrollment_ids = fields.Many2many('lms.enrollment','batch_id', string='Enrollment IDs',)
@@ -18,7 +16,7 @@ class LmsBatch(models.Model):
     end_date = fields.Date(string='End Date')
     company_id = fields.Many2one('res.company', string='Company', default= lambda self: self.env.user.company_id)
     state=fields.Selection([('draft','Draft'),('ongoing','Ongoing'),('completed','Completed'),('cancelled','Cancelled')], default='draft',string='State', tracking=True)
-    student_count=fields.Integer(string='Registrations', compute='_compute_student_count')
+    student_count=fields.Integer(string='Registrations', compute='_compute_student_count', store=True)
 
     def start_button (self):
         for record in self:

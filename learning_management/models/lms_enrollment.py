@@ -11,13 +11,13 @@ class LmsEnrollment(models.Model):
     _rec_name = 'name'
 
     course_id = fields.Many2one('product.product',string='Course id', domain=[('type','=','service')], required=True)
-    name=fields.Char(string='Enrollment name', default=lambda self:('New'))
-    reference_id=fields.Char(string='Reference id')
-    student_id=fields.Many2one('res.partner', string='Student ID', context={'show_address':1}, required=True)
-    date=fields.Date(string='Date', default=fields.Date.today(), required=True)
-    due_date=fields.Date(string='Due date', default=fields.Date.today()+ timedelta(days=15))
+    name=fields.Char(string='Enrollment name', default=lambda self:('New'), copy=False)
+    refference_id=fields.Many2one('res.partner',string='Reference id',copy=False)
+    student_id=fields.Char(related='refference_id.name', string='Student ID', context={'show_address':1})
+    date=fields.Date(string='Date', default=fields.Date.context_today, required=True)
+    due_date=fields.Date(string='Due date', default=lambda self: fields.Date.today()+ timedelta(days=15))
     course_fee=fields.Monetary(string='Course Fee')
-    is_lead=fields.Boolean(string='Is Lead')
+    is_lead=fields.Boolean(string='Is Lead', help="Is Lead", copy=False)
     description=fields.Text(string='Description')
     terms_and_conditions=fields.Html()
     state=fields.Selection([('draft','Draft'),('confirm','Confirm'),('done','Done'),('cancel','Cancel')],string='State', default='draft')
@@ -38,13 +38,13 @@ class LmsEnrollment(models.Model):
         return super(LmsEnrollment,self).create(vals)
 
 # constrains
-    @api.constrains('reference_id')
-    def check_reference_id(self):
-        pattern = '^(?=(?:.*[a-zA-Z]){3})(?=(?:.*\d){3})(?=(?:.*[^a-zA-Z0-9]){2})'
-        for record in self:
-            if record.reference_id:
-               if not re.match(pattern,record.reference_id):
-                   raise UserError('the reference id should contains 3 alphabets, 3 numbers and 2 special characters.')
+#     @api.constrains('reference_id')
+#     def check_reference_id(self):
+#         pattern = '^(?=(?:.*[a-zA-Z]){3})(?=(?:.*\d){3})(?=(?:.*[^a-zA-Z0-9]){2})'
+#         for record in self:
+#             if record.reference_id:
+#                if not re.match(pattern,record.reference_id):
+#                    raise UserError('the reference id should contains 3 alphabets, 3 numbers and 2 special characters.')
     @api.constrains('course_fee')
     def course_fee_validation(self):
         for record in self:

@@ -13,7 +13,7 @@ class LmsScholarship(models.Model):
     enrollment_id=fields.Many2one('lms.enrollment',string="Enrollment id", required=True)
     course_id=fields.Many2one('product.product',string="Course id", related='enrollment_id.course_id')
     state=fields.Selection([('pending','Pending'), ('confirmed','Confirmed'), ('first approved','First Approved'),('fully approved','Fully Approved'), ('rejected','Rejected')],default="pending")
-    student_id=fields.Many2one('res.partner',string="Student id", related='enrollment_id.student_id')
+    student_id=fields.Many2one('res.partner',string="Student id")
     due_date=fields.Date(string="Due date", default=fields.Date.today()+ timedelta(days=15))
     validity=fields.Integer(string="Validity")
     discount_amount=fields.Monetary(string="Discount amount", required=True)
