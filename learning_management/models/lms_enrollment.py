@@ -10,14 +10,14 @@ class LmsEnrollment(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name'
 
-    course_id = fields.Many2one('product.product',string='Course id', domain=[('type','=','service')], required=True)
+    course_id = fields.Many2one('product.product',string='Course id', domain=[('categ_id','=','Education')], required=True, copy=False)
     name=fields.Char(string='Enrollment name', default=lambda self:('New'), copy=False)
-    refference_id=fields.Many2one('res.partner',string='Reference id',copy=False)
+    refference_id=fields.Many2one('res.partner',string='Reference id',copy=False, domain=[('is_student','!=', 'Active')], tracking=True)
     student_id=fields.Char(related='refference_id.name', string='Student ID', context={'show_address':1})
-    date=fields.Date(string='Date', default=fields.Date.context_today, required=True)
+    date=fields.Date(string='Date', default=fields.Date.context_today, required=True, tracking=True)
     due_date=fields.Date(string='Due date', default=lambda self: fields.Date.today()+ timedelta(days=15))
-    course_fee=fields.Monetary(string='Course Fee')
-    is_lead=fields.Boolean(string='Is Lead', help="Is Lead", copy=False)
+    course_fee=fields.Float(string='Course Fee', related='course_id.list_price', tracking=True)
+    is_lead=fields.Boolean(string='Is Lead', help="Is Lead", copy=False, tracking=True)
     description=fields.Text(string='Description')
     terms_and_conditions=fields.Html()
     state=fields.Selection([('draft','Draft'),('confirm','Confirm'),('done','Done'),('cancel','Cancel')],string='State', default='draft')
@@ -28,7 +28,6 @@ class LmsEnrollment(models.Model):
     batch_id=fields.Many2one('lms.batch', string='Batch')
     image=fields.Image(string='Image')
     scholarship_ids=fields.One2many('lms.scholarship','enrollment_id', string='Scholarship ID')
-
     # sequence generation
     @api.model_create_multi
     def create(self, vals):
@@ -37,14 +36,6 @@ class LmsEnrollment(models.Model):
                 val['name']=self.env['ir.sequence'].next_by_code('lms.enrollment')
         return super(LmsEnrollment,self).create(vals)
 
-# constrains
-#     @api.constrains('reference_id')
-#     def check_reference_id(self):
-#         pattern = '^(?=(?:.*[a-zA-Z]){3})(?=(?:.*\d){3})(?=(?:.*[^a-zA-Z0-9]){2})'
-#         for record in self:
-#             if record.reference_id:
-#                if not re.match(pattern,record.reference_id):
-#                    raise UserError('the reference id should contains 3 alphabets, 3 numbers and 2 special characters.')
     @api.constrains('course_fee')
     def course_fee_validation(self):
         for record in self:
@@ -55,6 +46,19 @@ class LmsEnrollment(models.Model):
         for record in self:
             if record.dob>fields.Date.today():
                 raise UserError('The DOB cannot be in the future')
+
+    @api.constrains('date')
+    def date_validation(self):
+        for record in self:
+            if record.date < fields.Date.today():
+                raise UserError('The Date cannot be in the past')
+
+    @api.constrains('student_id','course_id')
+    def student_duplication_validation(self):
+        for record in self:
+            duplicate=self.search(['&',('student_id','=',record.student_id),('course_id','=',record.course_id),('id','!=',record.id)])
+            if duplicate:
+                raise UserError('The student id and course id cannot be the same')
 
     @api.depends('dob', 'age')
     def compute_age(self):
@@ -72,3 +76,6 @@ class LmsEnrollment(models.Model):
     def cancel_button(self):
         for record in self:
             record.state='cancel'
+    def done_button(self):
+        for record in self:
+            record.state='done'

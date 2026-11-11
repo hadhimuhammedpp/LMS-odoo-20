@@ -16,22 +16,20 @@ class LmsBatch(models.Model):
     end_date = fields.Date(string='End Date')
     company_id = fields.Many2one('res.company', string='Company', default= lambda self: self.env.user.company_id)
     state=fields.Selection([('draft','Draft'),('ongoing','Ongoing'),('completed','Completed'),('cancelled','Cancelled')], default='draft',string='State', tracking=True)
-    student_count=fields.Integer(string='Registrations', compute='_compute_student_count', store=True)
-
-    def start_button (self):
+    student_count=fields.Integer(string='Registrations', compute='compute_student_count')
+    # def start_button (self):
+    #     for record in self:
+    #         record.state = 'ongoing'
+    # def complete_button (self):
+    #     for record in self:
+    #         record.state = 'completed'
+    # def cancel_button (self):
+    #     for record in self:
+    #         record.state = 'cancelled'
+    @api.depends('enrollment_ids.refference_id')
+    def compute_student_count(self):
         for record in self:
-            record.state = 'ongoing'
-    def complete_button (self):
-        for record in self:
-            record.state = 'completed'
-    def cancel_button (self):
-        for record in self:
-            record.state = 'cancelled'
-
-    @api.depends('enrollment_ids.student_id')
-    def _compute_student_count(self):
-        for record in self:
-            record.student_count = len(record.enrollment_ids.mapped('student_id'))
+            record.student_count = len(record.enrollment_ids)
 
     def students_enrolled (self):
         return{
@@ -39,6 +37,7 @@ class LmsBatch(models.Model):
             'name': 'Student Enrolled',
             'res_model': 'res.partner',
             'view_mode': 'list',
-            'domain':[('id','in',self.enrollment_ids.mapped('student_id').ids)]
+            'domain':[('id','in',self.enrollment_ids.mapped('refference_id').ids)]
         }
+
 

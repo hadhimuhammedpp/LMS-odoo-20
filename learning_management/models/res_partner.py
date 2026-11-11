@@ -5,6 +5,7 @@ import re
 class ResPartner(models.Model):
     _inherit = 'res.partner'
     reference_id = fields.Char(string='Reference ID')
+    is_student=fields.Boolean(default=True, string='Is Student')
 
 # alters the display name of the res.partner
     @api.depends_context('flag')

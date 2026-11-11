@@ -30,14 +30,19 @@
             <form>
                 <header>
                     <button name="confirm_button" type="object" string="Confirm" class="btn-primary"
-                            invisible="state in ['confirm','cancel']"/>
-                    <button name="cancel_button" type="object" string="Cancel" invisible="state=='cancel'"/>
+                            invisible="state in ['confirm','cancel','done']"/>
+                    <button name="cancel_button" type="object" string="Cancel" invisible="state in ['cancel','done','confirm']"/>
+                    <button name="done_button" class="oe_highlight" type="object" string="Done" invisible="state in ['done','draft','cancel']"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"/>
                 </header>
                 <sheet>
-                    <h1>
-                        <field name="name"/>
-                    </h1>
+                    <widget name="web_ribbon" title="Done" bg_color="bg-success" invisible="state in ['draft','confirm','cancel']"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-danger" invisible="state in ['done','confirm','draft']"/>
+                    <group>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </group>
                     <field name="image" widget="contact_image" class="oe_avatar"/>
                     <group>
                         <group>
@@ -45,7 +50,7 @@
                             <field name="student_id" placeholder="Enter a Student" />
                             <field name="course_id" placeholder="Select the Course"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="course_fee"/>
+                            <field name="course_fee" widget="monetary"/>
                             <field name="dob"/>
                             <field name="age"/>
                         </group>
@@ -62,9 +67,7 @@
                             <field name="description"/>
                         </page>
                         <page string="Scholarships">
-                            <group>
                                 <field name="scholarship_ids"/>
-                            </group>
                         </page>
                         <page string="Terms and conditions">
                             <field name="terms_and_conditions"/>
@@ -93,7 +96,7 @@
     </record>
 </odoo>
 
-<!--    students enrolled smart button view. note: type-action, %()d-->
+<!--students enrolled smart button view. note: type-action, %()d-->
 <!--    <record id="students_enrolled_list_view" model="ir.ui.view">-->
 <!--        <field name="name">list_view_demo</field>-->
 <!--        <field name="model">lms.enrollment</field>-->

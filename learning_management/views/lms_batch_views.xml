@@ -21,15 +21,15 @@
         <field name="model">lms.batch</field>
         <field name="arch" type="xml">
             <form>
-                <header>
-                    <button name="start_button" type="object" class="oe_highlight" string="Start"
-                            invisible="state=='cancelled'"/>
-                    <button name="complete_button" type="object" string="Complete" invisible="state=='cancelled'"/>
-                    <button name="cancel_button" type="object" string="Cancel" invisible="state=='cancelled'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,ongoing,completed"/>
-                </header>
+<!--                <header>-->
+<!--                    <button name="start_button" type="object" class="oe_highlight" string="Start"-->
+<!--                            invisible="state=='cancelled'"/>-->
+<!--                    <button name="complete_button" type="object" string="Complete" invisible="state=='cancelled'"/>-->
+<!--                    <button name="cancel_button" type="object" string="Cancel" invisible="state=='cancelled'"/>-->
+<!--                    <field name="state" widget="statusbar" statusbar_visible="draft,ongoing,completed"/>-->
+<!--                </header>-->
                 <sheet>
-                    <div name="button_box" groups="base.group_user" position="inside">
+                    <div name="button_box" groups="base.group_user">
                         <button name='students_enrolled' type="object" class="oe_stat_button" icon="person">
                             <field name='student_count' widget='statinfo'/>
                         </button>
@@ -42,13 +42,17 @@
                         <field name="course_id"/>
                         <field name="enrollment_ids" widget="many2many_tags"/>
                     </group>
+                    <notebook>
+                        <page string="Scholarships">
+<!--                            <field name=""/>-->
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>
         </field>
     </record>
-
-            <!--    search view-->
+     <!--    search view-->
     <record id="batch_search_view" model="ir.ui.view">
         <field name="name">search view</field>
         <field name="model">lms.batch</field>

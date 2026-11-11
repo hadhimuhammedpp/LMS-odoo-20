@@ -13,10 +13,9 @@
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
-                <field name="state"/>
                 <field name="student_id"/>
-                <field name="validity"/>
                 <field name="discount_amount"/>
+                <field name="state"/>
             </list>
         </field>
     </record>
@@ -27,11 +26,15 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name='approve_button' type="object" class="oe_highlight" invisible="state in ['fully approved','rejected']" string="Approve"/>
-                    <button name="reject_button" type="object" invisible="state=='rejected'" string="Reject"/>
+                    <button name='approve_button' type="object" class="oe_highlight" invisible="state in ['pending','fully approved','confirmed','rejected']" string="Approve"/>
+                    <button name="first_approve_button" type="object" invisible="state in ['pending','rejected','first approved','fully approved']" string="First Approve"/>
+                    <button name="confirm_button" type="object" invisible="state in ['rejected','first approved','fully approved','confirmed']" string="Confirm"/>
+                    <button name="reject_button" type="object" invisible="state in ['rejected','fully approved']" string="Reject"/>
                     <field name="state" widget="statusbar" statusbar_visible="pending,confirmed,first approved, fully approved"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Fully Approved" bg_color="bg-success" invisible="state in ['pending','first approved','confirmed','rejected']"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state in ['pending','confirmed','first approved','fully approved']"/>
                     <group>
                         <group>
                             <field name="name"/>

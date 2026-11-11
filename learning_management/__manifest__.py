@@ -4,7 +4,7 @@
     'summary': 'LMS by ABC Learning Academy',
     'version': '20.0.0.0.0',
     'description': "This is a Learning Management Software for ABC Learning Academy",
-    'depends': ['base', 'sale', 'mail','contacts'],
+    'depends': ['base', 'sale', 'mail','contacts', 'crm'],
     'sequence': 0,
     'application': True,
     'installable': True,
