@@ -24,7 +24,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='website']" position="after">
                 <field name="is_student"/>
-                <field name="reference_id" required="is_student != False"/>
+                <field name="reference_id" required="is_student != False" invisible="not is_student"/>
+                <field name="DOB" invisible="not is_student"/>
             </xpath>
         </field>
     </record>

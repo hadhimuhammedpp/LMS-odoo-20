@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from datetime import datetime,timedelta
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 class LmsScholarship(models.Model):
     _name='lms.scholarship'
     _description='Scholarship'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-
 
     name=fields.Char(string="scholarship Name", tracking=True)
     enrollment_id=fields.Many2one('lms.enrollment',string="Enrollment id", required=True, tracking=True)
@@ -45,11 +44,11 @@ class LmsScholarship(models.Model):
     def discount_amount_constraint(self):
         for record in self:
             if record.discount_amount>record.course_id.list_price:
-                raise UserError('The Discount amount cannot be greater than the course price')
+                raise ValidationError('The Discount amount cannot be greater than the course price')
             elif record.discount_amount<0:
-                raise UserError('The Discount amount cannot be less than 0')
+                raise ValidationError('The Discount amount cannot be less than 0')
             elif record.discount_amount==0:
-                raise UserError('The Discount amount cannot be 0')
+                raise ValidationError('The Discount amount cannot be 0')
 
 
 

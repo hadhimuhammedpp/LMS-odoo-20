@@ -52,7 +52,7 @@
                             <field name="currency_id" invisible="1"/>
                             <field name="course_fee" widget="monetary"/>
                             <field name="dob"/>
-                            <field name="age"/>
+<!--                            <field name="age"/>-->
                         </group>
                         <group>
                             <field name="date"/>
@@ -67,7 +67,7 @@
                             <field name="description"/>
                         </page>
                         <page string="Scholarships">
-                                <field name="scholarship_ids"/>
+                                <field name="all_scholarships"/>
                         </page>
                         <page string="Terms and conditions">
                             <field name="terms_and_conditions"/>

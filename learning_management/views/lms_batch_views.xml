@@ -12,6 +12,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="batch_name"/>
+                <field name="color" widget="color_picker"/>
             </list>
         </field>
     </record>
@@ -35,16 +36,20 @@
                         </button>
                     </div>
                     <group>
-                        <field name="batch_name"/>
-                        <field name="capacity"/>
-                        <field name="company_id"/>
-                        <field name="start_date"/>
-                        <field name="course_id"/>
-                        <field name="enrollment_ids" widget="many2many_tags"/>
+                        <group>
+                            <field name="batch_name"/>
+                            <field name="capacity"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="course_id"/>
+                            <field name="enrollment_ids" widget="many2many_tags"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Scholarships">
-<!--                            <field name=""/>-->
+                            <field name="scholarship_ids"/>
                         </page>
                     </notebook>
                 </sheet>

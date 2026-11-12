@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="lms_courses" model="product.product">
+        <record id="demo_category" model="product.category">
+            <field name="name">Education</field>
+        </record>
+
+        <record id="lms_courses1" model="product.product">
             <field name="name">Web_Development</field>
             <field name="default_code">001</field>
             <field name="type">service</field>
-            <field name="lst_price">10000</field>
+            <field name="lst_price">40000</field>
+            <field name="categ_id" ref="demo_category"/>
+        </record>
+
+        <record id="lms_courses2" model="product.product">
+            <field name="name">Python_Development</field>
+            <field name="default_code">002</field>
+            <field name="type">service</field>
+            <field name="lst_price">60000</field>
+            <field name="categ_id" ref="demo_category"/>
         </record>
     </data>
 </odoo>

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError,ValidationError
 import re
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+
     reference_id = fields.Char(string='Reference ID')
     is_student=fields.Boolean(default=True, string='Is Student')
+    DOB = fields.Date(string='DOB')
 
-# alters the display name of the res.partner
+    # alters the display name of the res.partner
     @api.depends_context('flag')
     def _compute_display_name(self):
         if self.env.context.get('flag'):
@@ -16,13 +18,13 @@ class ResPartner(models.Model):
         else:
             return super()._compute_display_name()
 
-
+    # validation for reference id
     @api.constrains('reference_id')
     def check_reference_id(self):
         pattern = '^(?=(?:.*[a-zA-Z]){3})(?=(?:.*\d){3})(?=(?:.*[^a-zA-Z0-9]){2})'
         for record in self:
             if record.reference_id:
                if not re.match(pattern,record.reference_id):
-                   raise UserError('the reference id should contains 3 alphabets, 3 numbers and 2 special characters.')
+                   raise ValidationError('the reference id should contains 3 alphabets, 3 numbers and 2 special characters.')
 
 
