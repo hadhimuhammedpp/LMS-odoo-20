@@ -29,6 +29,7 @@ class LmsEnrollment(models.Model):
     image=fields.Image(string='Image')
     scholarship_ids=fields.One2many('lms.scholarship','enrollment_id', string='Scholarship ID')
     all_scholarships=fields.Many2many('lms.scholarship',string='Scholarships', compute='compute_all_scholarships')
+    invoice_id=fields.Many2one('account.move', string='Invoice', readonly=True, copy=False, tracking=True)
 
     # name sequence generation
     @api.model_create_multi
@@ -73,6 +74,43 @@ class LmsEnrollment(models.Model):
     def done_button(self):
         for record in self:
             record.state='done'
+
+    # auto generating invoices due date
+    @api.model
+    def _cron_generate_due_invoices(self):
+        today=fields.Date.today()
+        enrollments=self.search([('state','=','confirm'),('due_date','<',today),('invoice_id','=',False)])
+        for record in enrollments:
+            if not record.refference_id:
+                continue
+            course_fee=record.course_fee
+            if course_fee<=0:
+                continue
+            approved_scholarships=record.scholarship_ids.filtered(lambda scholarship: scholarship.state in ['fully approved'])
+            total_discount=sum(approved_scholarships.mapped('discount_amount'))
+            if total_discount>course_fee:
+                continue
+            invoice_lines=[
+                (0,0,{
+                    'product_id':record.course_id.id,
+                    'name':record.course_id.display_name,
+                    'quantity':1,
+                    'price_unit': course_fee
+                })]
+            if total_discount>0:
+                invoice_lines.append((0,0,{
+                    'product_id':record.course_id.id,
+                    'name':'scholarship discount',
+                    'quantity':1,
+                    'price_unit': -total_discount
+                }))
+            invoice=self.env['account.move'].create({
+                'move_type':'out_invoice',
+                'partner_id':record.refference_id.id,
+                'invoice_date':today,
+                'invoice_line_ids':invoice_lines,
+            })
+        record.invoice_id=invoice.id
 
     # @api.depends('dob', 'age')
     # def compute_age(self):

@@ -11,6 +11,7 @@
             <field name="type">service</field>
             <field name="lst_price">40000</field>
             <field name="categ_id" ref="demo_category"/>
+            <field name="taxes_id" eval="False"/>
         </record>
 
         <record id="lms_courses2" model="product.product">
@@ -19,6 +20,7 @@
             <field name="type">service</field>
             <field name="lst_price">60000</field>
             <field name="categ_id" ref="demo_category"/>
+            <field name="taxes_id" eval="False"/>
         </record>
     </data>
 </odoo>

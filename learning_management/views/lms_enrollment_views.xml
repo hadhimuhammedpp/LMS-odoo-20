@@ -60,6 +60,7 @@
                             <field name="is_lead"/>
                             <field name="company_id"/>
                             <field name="batch_id" placeholder="choose the batch"/>
+                            <field name="invoice_id"/>
                         </group>
                     </group>
                     <notebook>
