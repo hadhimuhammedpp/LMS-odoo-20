@@ -14,7 +14,7 @@ class LmsBatch(models.Model):
     enrollment_ids = fields.One2many('lms.enrollment', 'batch_id', string='Enrollment IDs', )
     capacity = fields.Integer(string='Capacity', required=True, tracking=True)
     course_id = fields.Many2one('product.product', string='Course ID')
-    start_date = fields.Date(string='Start Date')
+    start_date = fields.Date(string='Start Date', default=fields.Date.context_today, tracking=True)
     end_date = fields.Date(string='End Date')
     color = fields.Integer(string='Color')
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.user.company_id)
@@ -70,26 +70,30 @@ class LmsBatch(models.Model):
             total_discount = sum(approved_scholarships.mapped('discount_amount'))
             if total_discount > course_fee:
                 raise UserError('The discount amount cannot be greater than the course fee')
+            invoice_lines = [
+                (0, 0, {
+                    'product_id': record.course_id.id,
+                    'name': record.course_id.display_name,
+                    'quantity': 1,
+                    'price_unit': course_fee
+                })]
+            if total_discount > 0:
+                invoice_lines.append((0, 0, {
+                    'product_id': record.course_id.id,
+                    'name': 'scholarship discount',
+                    'quantity': 1,
+                    'price_unit': -total_discount
+                }))
             invoice = self.env['account.move'].create({'move_type': 'out_invoice',
                                                        'partner_id': record.refference_id.id,
                                                        'invoice_date': fields.Date.context_today(record),
                                                        'company_id': record.company_id.id,
                                                        'invoice_origin': record.name,
-                                                       'invoice_line_ids': [
-                                                           Command.create({'product_id': record.course_id.id,
-                                                                           'name': record.course_id.display_name,
-                                                                           'price_unit': course_fee,
-                                                                           'quantity': 1,
-                                                                           }),
-                                                           Command.create({'product_id': record.course_id.id,
-                                                                           'name': 'Scholarship Discount',
-                                                                           'price_unit':-total_discount,
-                                                                           'quantity': 1,
-                                                                           })
-                                                           ]
+                                                       'invoice_line_ids': invoice_lines,
                                                        })
+            invoice.action_post()
             record.invoice_id = invoice.id
-            self.write({'active': False,'state':'completed'})
+            self.write({'state':'completed'})
 
     def reset_to_draft_button(self):
         for record in self:

@@ -22,5 +22,14 @@
             <field name="categ_id" ref="demo_category"/>
             <field name="taxes_id" eval="False"/>
         </record>
+
+        <record id="lms_scholarship" model="product.product">
+            <field name="name">Scholarship</field>
+            <field name="default_code">101</field>
+            <field name="type">service</field>
+            <field name="lst_price">0</field>
+<!--            <field name="categ_id" ref="demo_category"/>-->
+            <field name="taxes_id" eval="False"/>
+        </record>
     </data>
 </odoo>

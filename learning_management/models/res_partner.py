@@ -6,10 +6,11 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     reference_id = fields.Char(string='Reference ID')
-    is_student=fields.Boolean(default=True, string='Is Student')
+    is_student=fields.Boolean(default=False, string='Is Student')
     DOB = fields.Date(string='DOB')
+    # dis=fields.One2many('lms.enrollment','refference_id',  string='Display Student')
 
-    # alters the display name of the res.partner
+    # alters the display name of the res.partner in the enrollment Many2one drop-down field
     @api.depends_context('flag')
     def _compute_display_name(self):
         if self.env.context.get('flag'):

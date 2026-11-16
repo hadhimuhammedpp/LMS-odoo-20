@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_enrollment_done" model="mail.template">
+        <field name="name">completion email</field>
+        <field name="model_id" ref="model_lms_enrollment"/>
+        <field name="email_from">{{object.company_id.name}}</field>
+        <field name="subject">Your enrollment has been completed</field>
+        <field name="email_to">{{object.refference_id.email}}</field>
+        <field name="use_default_to" eval="False"/>
+        <field name="body_html" type="html">
+            <div>
+                <p>
+                    Dear
+                    <t t-out="object.refference_id.name"/>,
+<!--                    or 'Student'-->
+                </p>
+                <p>
+                    Congrats!!!
+                </p>
+                <p>
+                    Your enrollment has been completed
+                </p>
+                <p>
+                    <strong>Enrollment Details:</strong>
+                </p>
+                <ul>
+                    <li>
+                        Enrollment ID:
+                        <t t-out="object.name"/>
+                    </li>
+                    <li>
+                        Course Name:
+                        <t t-out="object.course_id.name"/>
+                    </li>
+                </ul>
+                <p>
+                    Thank You.
+                </p>
+            </div>
+        </field>
+    </record>
+</odoo>
