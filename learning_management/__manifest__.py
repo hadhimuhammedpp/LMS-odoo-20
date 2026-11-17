@@ -19,6 +19,7 @@
         'views/lms_batch_views.xml',
         'views/lms_menus.xml',
         'data/ir_cron.xml',
-        'data/mail_template.xml'
+        'data/mail_template.xml',
+        'security/groups.xml',
     ]
 }

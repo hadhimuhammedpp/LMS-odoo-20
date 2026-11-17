@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <record id="scholarship_menu" model="ir.actions.act_window">
         <field name="name">scholarship list</field>
         <field name="res_model">lms.scholarship</field>

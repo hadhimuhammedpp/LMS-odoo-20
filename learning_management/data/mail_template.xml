@@ -32,6 +32,14 @@
                         Course Name:
                         <t t-out="object.course_id.name"/>
                     </li>
+                    <li>
+                        Course Fee:
+                        <t t-out="object.course_fee"/>
+                    </li>
+                    <li>
+                        Invoice:
+                        <t t-out="object.invoice_id.name"/>
+                    </li>
                 </ul>
                 <p>
                     Thank You.

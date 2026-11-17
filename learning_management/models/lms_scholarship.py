@@ -27,6 +27,16 @@ class LmsScholarship(models.Model):
         for record in self:
             record.validity=(record.due_date-fields.Date.today()).days
 
+    @api.constrains('discount_amount')
+    def discount_amount_constraint(self):
+        for record in self:
+            if record.discount_amount > record.course_id.list_price:
+                raise ValidationError('The Discount amount cannot be greater than the course price')
+            elif record.discount_amount < 0:
+                raise ValidationError('The Discount amount cannot be less than 0')
+            elif record.discount_amount == 0:
+                raise ValidationError('The Discount amount cannot be 0')
+
     def approve_button(self):
         for record in self:
             record.state='fully approved'
@@ -39,16 +49,6 @@ class LmsScholarship(models.Model):
     def confirm_button(self):
             for record in self:
                 record.state = 'confirmed'
-
-    @api.constrains('discount_amount')
-    def discount_amount_constraint(self):
-        for record in self:
-            if record.discount_amount>record.course_id.list_price:
-                raise ValidationError('The Discount amount cannot be greater than the course price')
-            elif record.discount_amount<0:
-                raise ValidationError('The Discount amount cannot be less than 0')
-            elif record.discount_amount==0:
-                raise ValidationError('The Discount amount cannot be 0')
 
 
 

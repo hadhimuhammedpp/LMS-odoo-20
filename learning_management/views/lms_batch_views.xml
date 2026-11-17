@@ -24,9 +24,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                        <button name="run_billing_button" type="object" string="Run Billing" class="btn-primary" invisible="state == 'completed'"/>
-                        <button name="reset_to_draft_button" type="object" string="Reset to Draft" invisible="state == 'ongoing'"/>
-<!--                        <field name="state" widget="statusbar"/>-->
+                        <button name="run_billing_button" type="object" string="Run Billing" class="btn-primary" invisible="to_be_invoiced == 0"/>
                 </header>
                 <sheet>
                     <div name="button_box" groups="base.group_user">
@@ -34,7 +32,7 @@
                             <field name='student_count' widget='statinfo'/>
                         </button>
                         <button name='invoices_button' type="object" class="oe_stat_button" icon="payments" string="Invoices">
-
+                            <field name="invoice_count" widget="statinfo" string="invoices"/>
                         </button>
                     </div>
                     <group>
@@ -46,6 +44,7 @@
                         <group>
                             <field name="start_date"/>
                             <field name="company_id"/>
+                            <field name="to_be_invoiced"/>
                         </group>
                         <group>
                                     <field name="enrollment_ids" widget="many2many_tags"/>
@@ -61,6 +60,7 @@
             </form>
         </field>
     </record>
+
      <!--    search view-->
     <record id="batch_search_view" model="ir.ui.view">
         <field name="name">search view</field>
@@ -70,7 +70,7 @@
                 <field name="batch_name"/>
                 <field name="enrollment_ids"/>
 <!--                <filter name="archived" domain="[('active','=','False')]"/>-->
-                <filter name="group_by" context="{'group_by':'state','residual_visible':'True'}"/>
+                <filter name="group_by" context="{'group_by':'batch_name','residual_visible':'True'}"/>
             </search>
         </field>
     </record>

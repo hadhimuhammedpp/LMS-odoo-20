@@ -24,7 +24,7 @@
         </record>
 
         <record id="lms_scholarship" model="product.product">
-            <field name="name">Scholarship</field>
+            <field name="name">Scholarship Amount</field>
             <field name="default_code">101</field>
             <field name="type">service</field>
             <field name="lst_price">0</field>

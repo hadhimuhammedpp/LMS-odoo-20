@@ -5,15 +5,13 @@ from odoo.exceptions import UserError, ValidationError
 from odoo import Command
 from odoo.orm.decorators import readonly
 
-
 class LmsEnrollment(models.Model):
     _name = 'lms.enrollment'
     _description = 'Enrollment'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name'
 
-    course_id = fields.Many2one('product.product', string='Course id', domain=[('categ_id', '=', 'Education')],
-                                required=True, copy=False)
+    course_id = fields.Many2one('product.product', string='Course id', domain=[('categ_id', '=', 'Education')],required=True, copy=False)
     name = fields.Char(string='Enrollment name', default=lambda self: ('New'), copy=False)
     refference_id = fields.Many2one('res.partner', string='Reference id', copy=False,
                                     domain=[('is_student', '!=', False)], tracking=True)
@@ -44,6 +42,39 @@ class LmsEnrollment(models.Model):
                 val['name'] = self.env['ir.sequence'].next_by_code('lms.enrollment')
         return super(LmsEnrollment, self).create(vals)
 
+    # auto generating invoices due date
+    @api.model
+    def _cron_generate_due_invoices(self):
+        today = fields.Date.today()
+        discount_product = self.env.ref('learning_management.lms_scholarship')
+        enrollments = self.search([('state', '=', 'confirm'), ('due_date', '<', today), ('invoice_id', '=', False)])
+        for record in enrollments:
+            if not record.course_id:
+                continue
+            course_fee = record.course_fee
+            approved_scholarships = record.scholarship_ids.filtered(
+                lambda scholarship: scholarship.state in ['fully approved'])
+            total_discount = sum(approved_scholarships.mapped('discount_amount'))
+            if total_discount > course_fee:
+                continue
+            invoice = self.env['account.move'].create({
+                'move_type': 'out_invoice',
+                'partner_id': record.refference_id.id,
+                'invoice_date': today,
+                'invoice_line_ids': [Command.create({'product_id': record.course_id.id,
+                                                     'name': record.course_id.name,
+                                                     'price_unit': course_fee,
+                                                     'quantity': 1,
+                                                     }),
+                                     Command.create({'product_id': discount_product.id,
+                                                     'name': 'Scholarship Discount',
+                                                     'price_unit': -total_discount,
+                                                     'quantity': 1,
+                                                     }),
+                                     ]
+            })
+            record.invoice_id = invoice.id
+
     @api.constrains('course_fee')
     def course_fee_validation(self):
         for record in self:
@@ -65,6 +96,21 @@ class LmsEnrollment(models.Model):
             if duplicate:
                 raise UserError('The student id and course id cannot be the same')
 
+    # to checks the batch max capacity
+    @api.constrains('batch_id')
+    def check_batch_ids_capacity(self):
+        for record in self:
+            if len(record.batch_id.enrollment_ids) > record.batch_id.capacity:
+                raise UserError('The total capacity is Full for this batch!')
+
+    # to check course is same in batch and enrollment
+    @api.constrains('batch_id', 'course_id')
+    def check_course_in_batch_and_enrollments(self):
+        for record in self:
+            if record.batch_id:
+                if record.course_id != record.batch_id.course_id:
+                    raise UserError('The course and batch id could be the same')
+
     # modifying the display of scholarship records about state
     @api.onchange('scholarship_ids', 'scholarship_ids.state')
     def compute_all_scholarships(self):
@@ -80,6 +126,7 @@ class LmsEnrollment(models.Model):
         for record in self:
             record.state = 'cancel'
 
+    # mail send on done button action
     def done_button(self):
         template = self.env.ref('learning_management.mail_template_enrollment_done')
         for record in self:
@@ -88,37 +135,15 @@ class LmsEnrollment(models.Model):
             record.write({'state': 'done'})
             template.send_mail(record.id, force_send=True)
 
-    # auto generating invoices due date
-    @api.model
-    def _cron_generate_due_invoices(self):
-        today = fields.Date.today()
-        enrollments = self.search([('state', '=', 'confirm'), ('due_date', '<', today), ('invoice_id', '=', False)])
-        for record in enrollments:
-            if not record.course_id:
-                continue
-            course_fee = record.course_fee
-            approved_scholarships = record.scholarship_ids.filtered(
-                lambda scholarship: scholarship.state in ['fully approved'])
-            total_discount = sum(approved_scholarships.mapped('discount_amount'))
-            if total_discount > course_fee:
-                continue
-            invoice = self.env['account.move'].create({
-                'move_type': 'out_invoice',
-                'partner_id': record.refference_id.id,
-                'invoice_date': today,
-                'invoice_line_ids': [Command.create({'product_id': record.course_id.id,
-                                                     'name': record.course_id.name,
-                                                     'price_unit': course_fee,
-                                                     'quantity': 1,
-                                                     }),
-                                     Command.create({'product_id': record.course_id.id,
-                                                     'name': 'Scholarship Discount',
-                                                     'price_unit': -total_discount,
-                                                     'quantity': 1,
-                                                     }),
-                                    ]
-                                                    })
-            record.invoice_id = invoice.id
+    # invoices smart button in enrollment view
+    def enrollment_invoice_smart_button(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'invoices button',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', self.invoice_id.ids)]
+        }
 
     # @api.depends('dob', 'age')
     # def compute_age(self):
