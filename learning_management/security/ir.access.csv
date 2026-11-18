@@ -1,5 +1,7 @@
 id,name,model_id,group_id/id,operation,domain
-access_lms_enrollment,enrollment,lms.enrollment,base.group_user,crud,
-access_lms_scholarship,scholarship,lms.scholarship,base.group_user,crud,
-access_lms_batch,batch,lms.batch,base.group_user,crud,
-access_res_partner,students,res.partner,base.group_user,crud,
+access_lms_enrollment_user,user_access_enrollment,lms.enrollment,group_lms_user,cr,"[('company_id', 'in', company_ids)]"
+access_lms_enrollment_manager,manager_access_enrollment,lms.enrollment,group_lms_manager,crud,"[('company_id', 'in', company_ids)]"
+access_lms_scholarship_user,user_access_scholarship,lms.scholarship,group_lms_user,cr,"[('company_id', 'in', company_ids)]"
+access_lms_scholarship_manager,manager_access_scholarship,lms.scholarship,group_lms_manager,crud,"[('company_id', 'in', company_ids)]"
+access_lms_batch_user,user_access_batch,lms.batch,group_lms_user,cr,"[('company_id', 'in', company_ids)]"
+access_lms_batch_manager,manager_access_batch,lms.batch,group_lms_manager,crud,"[('company_id', 'in', company_ids)]"

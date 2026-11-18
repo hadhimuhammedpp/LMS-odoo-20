@@ -10,6 +10,7 @@
     'installable': True,
     'category': 'Education',
     'data': [
+        'security/groups.xml',
         'security/ir.access.csv',
         'views/lms_students_view.xml',
         'data/sequence.xml',
@@ -20,6 +21,5 @@
         'views/lms_menus.xml',
         'data/ir_cron.xml',
         'data/mail_template.xml',
-        'security/groups.xml',
     ]
 }

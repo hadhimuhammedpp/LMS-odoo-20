@@ -9,7 +9,9 @@ class ResPartner(models.Model):
     reference_id = fields.Char(string='Reference ID')
     is_student=fields.Boolean(default=False, string='Is Student')
     DOB = fields.Date(string='DOB')
-    # dis=fields.One2many('lms.enrollment','refference_id',  string='Display Student')
+    enrollment_ids=fields.One2many('lms.enrollment','refference_id',string='Enrollments')
+    enrollment_count=fields.Integer(string='Enrollment Count', compute='_compute_enrollment_count')
+
 
     # alters the display name of the res.partner in the enrollment Many2one drop-down field
     @api.depends_context('flag')
@@ -19,6 +21,21 @@ class ResPartner(models.Model):
                 record.display_name = record.reference_id or record.name
         else:
             return super()._compute_display_name()
+
+    @api.depends('enrollment_ids')
+    def _compute_enrollment_count(self):
+        for record in self:
+            record.enrollment_count = len(record.enrollment_ids)
+
+    def action_view_enrollments(self):
+        return{
+            'type': 'ir.actions.act_window',
+            'name': 'Enrollments',
+            'res_model': 'lms.enrollment',
+            'view_mode': 'list,form',
+            'domain': [('refference_id','=',self.id)],
+            'context': {'default_refference_id': self.id},
+        }
 
     # validation for reference id
     @api.constrains('reference_id')

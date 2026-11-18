@@ -27,6 +27,13 @@
                 <field name="is_student"/>
                 <field name="reference_id" required="is_student != False" invisible="not is_student"/>
                 <field name="DOB" invisible="not is_student"/>
+                <field name="enrollment_ids" widget="many2many_tags"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_enrollments" type="object" class="oe_stat_button" icon="person"
+                        invisible="not is_student">
+                    <field name="enrollment_count" widget="statinfo" string="Enrollments"/>
+                </button>
             </xpath>
         </field>
     </record>

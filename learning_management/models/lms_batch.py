@@ -23,6 +23,8 @@ class LmsBatch(models.Model):
     active = fields.Boolean(string='Active', default=True, tracking=True)
     invoice_count=fields.Integer(string='Invoice Count', compute='compute_invoice_count')
     to_be_invoiced=fields.Integer(string='To Be Invoiced', compute='compute_to_be_invoiced', readonly=True)
+    currency_id = fields.Many2one('res.currency', related='company_id.currency_id', string='Currency')
+    total_revenue=fields.Monetary(string='Total Revenue', compute='compute_total_revenue', readonly=True, currency_field='currency_id')
 
     # view students count in smart button
     @api.depends('enrollment_ids.refference_id')
@@ -51,6 +53,12 @@ class LmsBatch(models.Model):
                 lambda s: s.state == 'fully approved')
             record.scholarship_ids = [Command.set(scholarships.ids)]
 
+    @api.depends('enrollment_ids', 'enrollment_ids.invoice_id','enrollment_ids.invoice_id.amount_total','enrollment_ids.invoice_id.state')
+    def compute_total_revenue(self):
+        for record in self:
+            invoices=record.enrollment_ids.mapped('invoice_id').filtered(lambda i: i.state=='posted')
+            record.total_revenue = sum(invoices.mapped('amount_total'))
+
     # to validate number of enrollments and capacity
     @api.constrains('enrollment_ids', 'capacity')
     def check_enrollment_ids(self):
@@ -73,6 +81,8 @@ class LmsBatch(models.Model):
             raise UserError('There are no enrollments in this batch')
         for record in self.enrollment_ids:
             if record.invoice_id:
+                continue
+            if record.state not in ['done', 'confirm']:
                 continue
             course_fee = record.course_fee
             approved_scholarships = record.scholarship_ids.filtered(lambda s: s.state == 'fully approved')
@@ -101,8 +111,9 @@ class LmsBatch(models.Model):
                                                        'invoice_line_ids': invoice_lines,
                                                        })
             invoice.action_post()
-            record.invoice_id = invoice.id
-            self.write({'state':'completed'})
+            record.sudo().write({'invoice_id': invoice.id})
+            # record.invoice_id = invoice.id
+            # self.write({'state':'completed'})
 
     # students enrolled list view in smart button
     def students_enrolled(self):
