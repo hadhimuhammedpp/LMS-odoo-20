@@ -18,8 +18,10 @@
         'views/lms_scholarship_views.xml',
         'views/lms_enrollment_views.xml',
         'views/lms_batch_views.xml',
+        'views/lms_courses_view.xml',
         'views/lms_menus.xml',
         'data/ir_cron.xml',
         'data/mail_template.xml',
+        'views/account_move_views.xml'
     ]
 }

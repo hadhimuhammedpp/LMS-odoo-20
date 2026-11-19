@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="courses_menu" model="ir.actions.act_window">
+        <field name="name">courses list</field>
+        <field name="res_model">product.product</field>
+        <field name="domain">[('categ_id','=','Education')]</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+</odoo>

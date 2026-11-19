@@ -5,4 +5,5 @@
     <menuitem id="lms_scholarship_menu" name="Scholarships" parent="lms_main_menu" action="scholarship_menu"/>
     <menuitem id="lms_batch_menu" name="Batch" parent="lms_main_menu" action="batch_menu"/>
     <menuitem id="lms_students_menu" name="Students" parent="lms_main_menu" action="students_menu"/>
+    <menuitem id="lms_courses_menu" name="Courses" parent="lms_main_menu" action="courses_menu"/>
 </odoo>

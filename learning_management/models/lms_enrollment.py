@@ -33,18 +33,32 @@ class LmsEnrollment(models.Model):
     scholarship_ids = fields.One2many('lms.scholarship', 'enrollment_id', string='Scholarship ID')
     all_scholarships = fields.Many2many('lms.scholarship', string='Scholarships', compute='compute_all_scholarships')
     invoice_id = fields.Many2one('account.move', string='Invoice', readonly=True, copy=False, tracking=True)
+    payment_status=fields.Selection([('not_applicable','Not Applicable'),('not_invoiced','Not Invoiced'),('invoice_draft','Invoice Draft'),
+                                            ('not_paid','Unpaid'),('partial','partially paid'),('in_payment','In Payment'),('paid','Paid')],
+                                           string='Payment Status', compute='compute_payment_status', tracking=True)
 
     # name sequence generation
     @api.model_create_multi
     def create(self, vals):
         for val in vals:
             if val.get('name', 'New') == "New":
-                val['name'] = self.env['ir.sequence'].next_by_code('lms.enrollment')
+                val['name'] = self.env['ir.sequence'].next_by_code('lms.enrollmenttt')
         return super(LmsEnrollment, self).create(vals)
+
+    # function to display the payment status in enrollment form
+    @api.depends('state','invoice_id','invoice_id.state','invoice_id.payment_state')
+    def compute_payment_status(self):
+        for record in self:
+            if not record.invoice_id:
+                record.payment_status = 'not_invoiced'
+            elif record.invoice_id.state=='draft':
+                record.payment_status = 'invoice_draft'
+            else:
+                record.payment_status = (record.invoice_id.payment_state or 'not_paid')
 
     # auto generating invoices due date
     @api.model
-    def _cron_generate_due_invoices(self):
+    def cron_generate_due_invoices(self):
         today = fields.Date.today()
         discount_product = self.env.ref('learning_management.lms_scholarship')
         enrollments = self.search([('state', '=', 'confirm'), ('due_date', '<', today), ('invoice_id', '=', False)])
@@ -57,23 +71,26 @@ class LmsEnrollment(models.Model):
             total_discount = sum(approved_scholarships.mapped('discount_amount'))
             if total_discount > course_fee:
                 continue
+            invoice_lines=[Command.create({'product_id': record.course_id.id,
+                                                     'name': record.course_id.name,
+                                                     'price_unit': course_fee,
+                                                     'quantity': 1,
+                                                     })]
+            if total_discount > 0:
+                invoice_lines.append(Command.create({'product_id': discount_product.id,
+                                 'name': 'Scholarship Discount',
+                                 'price_unit': -total_discount,
+                                 'quantity': 1,
+                                 }))
             invoice = self.env['account.move'].create({
                 'move_type': 'out_invoice',
                 'partner_id': record.refference_id.id,
                 'invoice_date': today,
-                'invoice_line_ids': [Command.create({'product_id': record.course_id.id,
-                                                     'name': record.course_id.name,
-                                                     'price_unit': course_fee,
-                                                     'quantity': 1,
-                                                     }),
-                                     Command.create({'product_id': discount_product.id,
-                                                     'name': 'Scholarship Discount',
-                                                     'price_unit': -total_discount,
-                                                     'quantity': 1,
-                                                     }),
-                                     ]
+                'invoice_line_ids': invoice_lines,
+                'lms_enrollment_id': record.id
             })
             record.invoice_id = invoice.id
+
 
     @api.constrains('course_fee')
     def course_fee_validation(self):
@@ -121,6 +138,8 @@ class LmsEnrollment(models.Model):
     def confirm_button(self):
         for record in self:
             record.state = 'confirm'
+            activity = self.env['mail.activity'].create({
+                                                       })
 
     def cancel_button(self):
         for record in self:
@@ -154,3 +173,22 @@ class LmsEnrollment(models.Model):
     #                 record.age=record.age-1
     #             if record.age < 18:
     #                 raise UserError('The age should be greater than 18')
+
+# extension inheritance to account.move
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    lms_enrollment_id = fields.Many2one('lms.enrollment',string='LMS Enrollment', readonly=True, copy=False, index=True)
+
+#   overriding the action.post method to send the invoice pdf as mail
+    def action_post(self):
+        draft_invoices=self.filtered(lambda move: move.state == 'draft' and move.move_type == 'out_invoice')
+        result=super().action_post()
+        template=self.env.ref('learning_management.mail_template_lms_invoice', raise_if_not_found=False)
+        if template:
+            for invoice in draft_invoices:
+                if invoice.state=='posted' and invoice.partner_id.email:
+                    template.send_mail(invoice.id, force_send=True)
+                    return result
+
+

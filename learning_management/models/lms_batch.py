@@ -13,7 +13,7 @@ class LmsBatch(models.Model):
     batch_name = fields.Char(string='Batch Name', required=True)
     enrollment_ids = fields.One2many('lms.enrollment', 'batch_id', string='Enrollment IDs', )
     capacity = fields.Integer(string='Capacity', required=True, tracking=True)
-    course_id = fields.Many2one('product.product', string='Course ID', domain=[('categ_id', '=', 'Education')])
+    course_id = fields.Many2one('product.product', string='Course ID', required=True, domain=[('categ_id', '=', 'Education')])
     start_date = fields.Date(string='Start Date', default=fields.Date.context_today, tracking=True)
     end_date = fields.Date(string='End Date')
     color = fields.Integer(string='Color')
@@ -53,6 +53,7 @@ class LmsBatch(models.Model):
                 lambda s: s.state == 'fully approved')
             record.scholarship_ids = [Command.set(scholarships.ids)]
 
+    # function to compute the total revenue from batch (posted invoice state)
     @api.depends('enrollment_ids', 'enrollment_ids.invoice_id','enrollment_ids.invoice_id.amount_total','enrollment_ids.invoice_id.state')
     def compute_total_revenue(self):
         for record in self:
@@ -89,15 +90,15 @@ class LmsBatch(models.Model):
             total_discount = sum(approved_scholarships.mapped('discount_amount'))
             if total_discount > course_fee:
                 raise UserError('The discount amount cannot be greater than the course fee')
-            invoice_lines = [
-                (0, 0, {
+            # self.enrollment_ids.cron_generate_due_invoices()
+            invoice_lines = [Command.create({
                     'product_id': record.course_id.id,
                     'name': record.course_id.display_name,
                     'quantity': 1,
                     'price_unit': course_fee
                 })]
             if total_discount > 0:
-                invoice_lines.append((0, 0, {
+                invoice_lines.append(Command.create({
                     'product_id': discount_product.id,
                     'name': 'scholarship discount',
                     'quantity': 1,
@@ -109,9 +110,14 @@ class LmsBatch(models.Model):
                                                        'company_id': record.company_id.id,
                                                        'invoice_origin': record.name,
                                                        'invoice_line_ids': invoice_lines,
+                                                       'lms_enrollment_id': record.id
                                                        })
             invoice.action_post()
             record.sudo().write({'invoice_id': invoice.id})
+            if invoice.partner_id.email:
+                template=self.env.ref('learning_management.mail_template_lms_invoice')
+                template.send_mail(invoice.id, force_send=True)
+                record.message_post(body="the invoice has been sent successfully!", message_type='tracking')
             # record.invoice_id = invoice.id
             # self.write({'state':'completed'})
 

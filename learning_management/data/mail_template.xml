@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!--    enrollment completion mail template at clicking done button-->
     <record id="mail_template_enrollment_done" model="mail.template">
-        <field name="name">completion email</field>
+        <field name="name">enrollment completion email</field>
         <field name="model_id" ref="model_lms_enrollment"/>
         <field name="email_from">{{object.company_id.name}}</field>
         <field name="subject">Your enrollment has been completed</field>
@@ -46,5 +47,51 @@
                 </p>
             </div>
         </field>
+    </record>
+
+    <record id="mail_template_lms_invoice" model="mail.template">
+        <field name="name">lms invoice email</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="email_from">{{object.company_id.name}}</field>
+        <field name="subject">Invoice - {{object.name}}</field>
+        <field name="email_from">{{object.company_id.email or user.email}}</field>
+        <field name="email_to">{{object.partner_id.email}}</field>
+        <field name="use_default_to" eval="False"/>
+        <field name="body_html" type="html">
+            <div>
+                <p>
+                    Dear
+                    <t t-out="object.partner_id.name"/>,
+                </p>
+                <p>
+                    Your invoice has been generated successfully!
+                </p>
+                <p>
+                    <strong>Invoice Details:</strong>
+                </p>
+                <ul>
+                    <li>
+                        Invoice number:
+                        <t t-out="object.name"/>
+                    </li>
+                    <li>
+                        Enrollment ID:
+                        <t t-out="object.lms_enrollment_id.name"/>
+                    </li>
+                    <li>
+                        Course Name:
+                        <t t-out="object.invoice_line_ids[0].name"/>
+                    </li>
+<!--                    <li>-->
+<!--                        Total Amount:-->
+<!--                        <t t-out="format_amount(object.amount_total,object.currency_id"/>-->
+<!--                    </li>-->
+                </ul>
+                <p>
+                    Thank You.
+                </p>
+            </div>
+        </field>
+        <field name="report_template_ids" eval="[(4,ref('account.account_invoices'))]"/>
     </record>
 </odoo>
