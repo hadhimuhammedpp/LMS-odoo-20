@@ -40,9 +40,17 @@ class LmsScholarship(models.Model):
     def approve_button(self):
         for record in self:
             record.state='fully approved'
+
     def reject_button(self):
         for record in self:
-            record.state='rejected'
+            record.state = 'rejected'
+            scholarship_user = record.create_uid
+            if scholarship_user:
+                record.activity_schedule('mail.mail_activity_data_todo', user_id=scholarship_user.id,
+                                         summary='Scholarship Rejected',
+                                         note=f'Scholarship {record.name} has been rejected by the manager',
+                                         date_deadline=datetime.now())
+
     def first_approve_button(self):
         for record in self:
             record.state='first approved'

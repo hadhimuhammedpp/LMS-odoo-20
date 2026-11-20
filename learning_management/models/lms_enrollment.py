@@ -3,7 +3,6 @@ from odoo import models, fields, api
 from datetime import timedelta
 from odoo.exceptions import UserError, ValidationError
 from odoo import Command
-from odoo.orm.decorators import readonly
 
 class LmsEnrollment(models.Model):
     _name = 'lms.enrollment'
@@ -36,6 +35,7 @@ class LmsEnrollment(models.Model):
     payment_status=fields.Selection([('not_applicable','Not Applicable'),('not_invoiced','Not Invoiced'),('invoice_draft','Invoice Draft'),
                                             ('not_paid','Unpaid'),('partial','partially paid'),('in_payment','In Payment'),('paid','Paid')],
                                            string='Payment Status', compute='compute_payment_status', tracking=True)
+    student_feedback=fields.Text(string='Students Feedback')
 
     # name sequence generation
     @api.model_create_multi
@@ -135,11 +135,16 @@ class LmsEnrollment(models.Model):
             record.all_scholarships = record.scholarship_ids.filtered(
                 lambda scholarship: scholarship.state not in ['rejected', 'pending'])
 
+    # creates an activity for the manager when user confirms
     def confirm_button(self):
+        manager_group = self.env.ref('learning_management.group_lms_manager', raise_if_not_found=False)
+        managers = manager_group.user_ids
         for record in self:
             record.state = 'confirm'
-            activity = self.env['mail.activity'].create({
-                                                       })
+            for manager in managers:
+                record.activity_schedule('mail.mail_activity_data_call', user_id=manager.id,
+                                         summary='review new enrollment',
+                                         note=f'review new enrollment: {record.name}')
 
     def cancel_button(self):
         for record in self:
@@ -180,7 +185,7 @@ class AccountMove(models.Model):
 
     lms_enrollment_id = fields.Many2one('lms.enrollment',string='LMS Enrollment', readonly=True, copy=False, index=True)
 
-#   overriding the action.post method to send the invoice pdf as mail
+    #   overriding the action.post method to send the invoice pdf as mail
     def action_post(self):
         draft_invoices=self.filtered(lambda move: move.state == 'draft' and move.move_type == 'out_invoice')
         result=super().action_post()
@@ -189,6 +194,7 @@ class AccountMove(models.Model):
             for invoice in draft_invoices:
                 if invoice.state=='posted' and invoice.partner_id.email:
                     template.send_mail(invoice.id, force_send=True)
-                    return result
+                    invoice.message_post(body=f"Invoice {invoice.name} has been sent to {invoice.partner_id.email}", message_type='notification')
+        return result
 
 

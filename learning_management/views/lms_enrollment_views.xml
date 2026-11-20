@@ -30,8 +30,8 @@
             <form>
                 <header>
                     <button name="confirm_button" type="object" string="Confirm" class="btn-primary"
-                            invisible="state in ['confirm','cancel','done']"/>
-                    <button name="cancel_button" type="object" string="Cancel" invisible="state in ['cancel','done','confirm']" groups="learning_management.group_lms_manager"/>
+                            invisible="state in ['confirm','cancel','done']" groups="learning_management.group_lms_user"/>
+                    <button name="cancel_button" type="object" string="Cancel" invisible="state in ['cancel','done','confirm']" groups="learning_management.group_lms_user"/>
                     <button name="done_button" class="oe_highlight" type="object" string="Done" invisible="state in ['done','draft','cancel']" groups="learning_management.group_lms_manager"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"/>
                 </header>
@@ -67,6 +67,7 @@
                             <field name="company_id"/>
                             <field name="batch_id" placeholder="choose the batch"/>
                             <field name="invoice_id"/>
+                            <field name="student_feedback" groups="learning_management.group_lms_user"/>
                         </group>
                     </group>
                     <notebook>

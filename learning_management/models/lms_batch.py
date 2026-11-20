@@ -11,7 +11,7 @@ class LmsBatch(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     batch_name = fields.Char(string='Batch Name', required=True)
-    enrollment_ids = fields.One2many('lms.enrollment', 'batch_id', string='Enrollment IDs', )
+    enrollment_ids = fields.One2many('lms.enrollment', 'batch_id', string='Enrollment IDs')
     capacity = fields.Integer(string='Capacity', required=True, tracking=True)
     course_id = fields.Many2one('product.product', string='Course ID', required=True, domain=[('categ_id', '=', 'Education')])
     start_date = fields.Date(string='Start Date', default=fields.Date.context_today, tracking=True)
@@ -59,6 +59,18 @@ class LmsBatch(models.Model):
         for record in self:
             invoices=record.enrollment_ids.mapped('invoice_id').filtered(lambda i: i.state=='posted')
             record.total_revenue = sum(invoices.mapped('amount_total'))
+
+    @api.onchange('course_id')
+    def _onchange_course_id(self):
+        self.enrollment_ids=False
+        if self.course_id:
+            return{
+                'domain': {'enrollment_ids': [('course_id','=',self.course_id.id)]}
+            }
+        else:
+            return{
+                'domain': {'enrollment_ids': []}
+            }
 
     # to validate number of enrollments and capacity
     @api.constrains('enrollment_ids', 'capacity')
@@ -117,7 +129,7 @@ class LmsBatch(models.Model):
             if invoice.partner_id.email:
                 template=self.env.ref('learning_management.mail_template_lms_invoice')
                 template.send_mail(invoice.id, force_send=True)
-                record.message_post(body="the invoice has been sent successfully!", message_type='tracking')
+                invoice.message_post(body="the invoice has been sent successfully!", message_type='tracking')
             # record.invoice_id = invoice.id
             # self.write({'state':'completed'})
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<!--    enrollment completion mail template at clicking done button-->
+<!--    enrollment completion mail template at clicking enrollment done button-->
     <record id="mail_template_enrollment_done" model="mail.template">
         <field name="name">enrollment completion email</field>
         <field name="model_id" ref="model_lms_enrollment"/>
@@ -12,8 +12,7 @@
             <div>
                 <p>
                     Dear
-                    <t t-out="object.refference_id.name"/>,
-<!--                    or 'Student'-->
+                    <t t-out="object.refference_id.name or Student"/>,
                 </p>
                 <p>
                     Congrats!!!
@@ -49,11 +48,11 @@
         </field>
     </record>
 
+<!--    template of auto sending the invoice pdf when created -->
     <record id="mail_template_lms_invoice" model="mail.template">
         <field name="name">lms invoice email</field>
         <field name="model_id" ref="account.model_account_move"/>
-        <field name="email_from">{{object.company_id.name}}</field>
-        <field name="subject">Invoice - {{object.name}}</field>
+        <field name="subject">Invoice has been created - {{object.name}}</field>
         <field name="email_from">{{object.company_id.email or user.email}}</field>
         <field name="email_to">{{object.partner_id.email}}</field>
         <field name="use_default_to" eval="False"/>

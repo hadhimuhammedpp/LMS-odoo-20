@@ -49,7 +49,7 @@
                             <field name="total_revenue"/>
                         </group>
                         <group>
-                                    <field name="enrollment_ids" widget="many2many_tags"/>
+                            <field name="enrollment_ids" widget="many2many_tags" domain="[('course_id','=',course_id)]"/>
                         </group>
                     </group>
                     <notebook>

@@ -1,7 +1,7 @@
 id,name,model_id,group_id/id,operation,domain
-access_lms_enrollment_user,user_access_enrollment,lms.enrollment,group_lms_user,cru,"[('company_id', 'in', company_ids)]"
-access_lms_enrollment_manager,manager_access_enrollment,lms.enrollment,group_lms_manager,crud,"[('company_id', 'in', company_ids)]"
-access_lms_scholarship_user,user_access_scholarship,lms.scholarship,group_lms_user,cr,"[('company_id', 'in', company_ids)]"
-access_lms_scholarship_manager,manager_access_scholarship,lms.scholarship,group_lms_manager,crud,"[('company_id', 'in', company_ids)]"
-access_lms_batch_user,user_access_batch,lms.batch,group_lms_user,r,"[('company_id', 'in', company_ids)]"
-access_lms_batch_manager,manager_access_batch,lms.batch,group_lms_manager,crud,"[('company_id', 'in', company_ids)]"
+access_lms_enrollment_user,user_access_enrollment,lms.enrollment,group_lms_user,cru,"[('company_id', 'in', company_ids + [False])]"
+access_lms_enrollment_manager,manager_access_enrollment,lms.enrollment,group_lms_manager,crud,"[('company_id', 'in', company_ids + [False])]"
+access_lms_scholarship_user,user_access_scholarship,lms.scholarship,group_lms_user,cru,"[('company_id', 'in', company_ids + [False])]"
+access_lms_scholarship_manager,manager_access_scholarship,lms.scholarship,group_lms_manager,rud,"[('company_id', 'in', company_ids + [False])]"
+access_lms_batch_user,user_access_batch,lms.batch,group_lms_user,r,"[('company_id', 'in', company_ids + [False])]"
+access_lms_batch_manager,manager_access_batch,lms.batch,group_lms_manager,crud,"[('company_id', 'in', company_ids + [False])]"
